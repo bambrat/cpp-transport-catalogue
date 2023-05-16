@@ -15,63 +15,58 @@ namespace transport_catalogue {
 
 		for (auto stop : bus_ptr->stops) {
 			stop->buses.push_back(bus_ptr);
+			stop->unique_buses.insert(bus_ptr->name);
 		}
-		bus_ptr->route_length = getDistanceBus(bus_ptr);
+		bus_ptr->route_length = double(getDistanceBus(bus_ptr));
+		bus_ptr->curvature = double(getDistanceBus(bus_ptr) / getLength(bus_ptr));
+		bus_ptr->unique_stops = getUniqStops(bus_ptr);
 	}
 
-	void TransportCatalogue::addDistance(const std::vector<Distance>& distances) {
-		for (auto& distance : distances) {
-			distance_to_stop.insert(DistanceMap::value_type({ distance.A, distance.B }, distance.dist));
-		}
+	void TransportCatalogue::addDistance(const Stop* stopA, const Stop* stopB, int dist) {
+		getStop(stopA->name)->next_stop_dist.insert(DistanceMap::value_type(stopB,dist));
 	}
 
-	Bus* TransportCatalogue::getBus(std::string_view name) {
+	Bus* TransportCatalogue::getBus(std::string_view name) const {
 		if (busname_to_bus.find(name) == busname_to_bus.end()) { return nullptr; }
 		return busname_to_bus.at(name);
 	}
 
-	Stop* TransportCatalogue::getStop(std::string_view name) {
+	Stop* TransportCatalogue::getStop(std::string_view name) const {
 		if (stopname_to_stop.find(name) == stopname_to_stop.end()) { return nullptr; }
 		return stopname_to_stop.at(name);
 	}
 
-	std::unordered_set<const Stop*> TransportCatalogue::getUniqStops(Bus* bus) {
+	std::unordered_set<const Stop*> TransportCatalogue::getUniqStops(const Bus* bus) const {
 		std::unordered_set<const Stop*> unique_stops;
 		unique_stops.insert(bus->stops.begin(), bus->stops.end());
 		return unique_stops;
 	}
 
-	std::unordered_set<const Bus*> TransportCatalogue::getUniqBuses(Stop* stop) {
-		std::unordered_set<const Bus*> unique_stops;
-		unique_stops.insert(stop->buses.begin(), stop->buses.end());
-		return unique_stops;
-	}
-
-	double TransportCatalogue::getLength(Bus* bus) {
+	double TransportCatalogue::getLength(Bus* bus) const {
 		auto lambComputeDistance = [](const Stop* lhs, const Stop* rhs) {
-			return geo::ComputeDistance({ (*lhs).latitude, (*lhs).longitude },
-				{ (*rhs).latitude, (*rhs).longitude }); };
+			return geo::ComputeDistance({ (*lhs).coord.lat, (*lhs).coord.lng },
+				{ (*rhs).coord.lat, (*rhs).coord.lng }); };
 		return transform_reduce(next(bus->stops.begin()), bus->stops.end(),
 			bus->stops.begin(), 0.0, std::plus<>{}, lambComputeDistance);
 	}
 
-	size_t TransportCatalogue::getDistanceStop(const Stop* begin, const Stop* finish) {
-		auto distanceStop_frwd{ distance_to_stop.find({ begin, finish }) };
-		auto distanceStop_back{ distance_to_stop.find({ finish, begin }) };
+	size_t TransportCatalogue::getDistanceStop(const Stop* begin, const Stop* finish) const {
+		auto distanceStop_frwd = begin->next_stop_dist.count(finish);
+		auto distanceStop_back = finish->next_stop_dist.count(begin);
 
-		if (distanceStop_frwd != distance_to_stop.end() || distanceStop_back != distance_to_stop.end()) {
-			if (distanceStop_frwd != distance_to_stop.end())
+		if (distanceStop_frwd || distanceStop_back) {
+			if (distanceStop_frwd)
 			{
-				return distanceStop_frwd->second;
+				return begin->next_stop_dist.find(finish)->second;
 			}
 			else {
-				return distanceStop_back->second;
+				return finish->next_stop_dist.find(begin)->second;
 			}
 		}
 		return 0;
 	}
 
-	size_t TransportCatalogue::getDistanceBus(Bus* bus) {
+	size_t TransportCatalogue::getDistanceBus(const Bus* bus) const {
 		size_t distanceBus = 0;
 		size_t stops_size = bus->stops.size() - 1;
 		for (size_t i = 0; i < stops_size; i++) {

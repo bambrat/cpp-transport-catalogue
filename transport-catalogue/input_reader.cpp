@@ -1,18 +1,22 @@
 #include "input_reader.h"
 
 namespace transport_catalogue {
+	//значение char c для CutWord()  
+	const char CUT_DEFAULT = ' ';
+	//значение splitter для SplitString() 
+	const std::string SPLIT_DEFAULT = ", ";
+	//значение для основного разделителя входных данных
+	const std::string MAIN_SPLIT = ": ";
 
-	namespace detail {
-		//преобразует строку в double
-		double stringToDouble(const std::string& s)
-		{
-			std::istringstream i(s);
-			double x;
-			if (!(i >> x))
-				return 0;
-			return x;
-		}
+	const char BUS_DELIMITER_ROUTE = '>';
+	const std::string BUS_LINE_ROUTE = ">";
+	const std::string BUS_RING_ROUTE = "-";
 
+	const std::string DISTANCE_DELIMITER = "m to ";
+	//минимальный размер вектора после парсинга строки с информацией о дистанции
+	const int MIN_VECTOR_SIZE = 3;
+
+	namespace console_data_processing {
 		//убирает все пробелы вначале и в конце строки
 		std::string_view cutWord(std::string_view str, const char c = CUT_DEFAULT) {
 			if (str.find_first_not_of(c)) {
@@ -43,57 +47,46 @@ namespace transport_catalogue {
 
 			return res;
 		}
-	} //namespace detail
 
-	namespace stop {
-		Stop processing(const std::string_view record) {
-			using namespace detail;
+		Stop processingStop(const std::string_view record) {
 			Stop stop;
 			auto _ = SplitString(record, MAIN_SPLIT);
 			stop.name = cutWord(_.at(0));
 
 			auto coords = SplitString(_.at(1));
-			stop.latitude = stringToDouble(std::string(coords.at(0)));
-			stop.longitude = stringToDouble(std::string(coords.at(1)));
+			stop.coord.lat = stod(std::string(coords.at(0)));
+			stop.coord.lng = stod(std::string(coords.at(1)));
 			return stop;
 		}
-	}//namespace stop
-	namespace distance {
-		std::vector <Distance > processing(const std::string_view record, TransportCatalogue& catalogue) {
-			using namespace detail;
+
+		void processingDistance(const std::string_view record, TransportCatalogue& catalogue) {
 			auto rec = SplitString(record);
 
-			//если нет данных о дистанции
-			if (rec.size() < MIN_VECTOR_SIZE) return {};
+			if (rec.size() < MIN_VECTOR_SIZE) return;
 
-			std::vector<Distance> distances{};
 			auto stopA = catalogue.getStop(SplitString(record, MAIN_SPLIT).at(0));
 
 			for (int i = 2; i < rec.size(); ++i) {
-				auto _ = SplitString(rec.at(i), DELIMITER);
+				auto _ = SplitString(rec.at(i), DISTANCE_DELIMITER);
 				auto stopB = catalogue.getStop(_.at(1));
 				auto distanceAB = stoi(std::string(_.at(0)));
-				distances.push_back({ stopA, stopB, distanceAB });
+				//distances.push_back({ stopA, stopB, distanceAB });
+				catalogue.addDistance(stopA, stopB, distanceAB);
 			}
-
-			return distances;
 		}
-	}//namespace distance
-	namespace bus {
-		Bus processing(const std::string_view record, TransportCatalogue& catalogue) {
-			using namespace detail;
 
+		Bus processingBus(const std::string_view record, TransportCatalogue& catalogue) {
 			Bus bus;
 			auto rec = SplitString(record, MAIN_SPLIT);
 			bus.name = cutWord(rec.at(0));
 
-			if (rec.at(1).find(DELIMITER_ROUTE) != std::string_view::npos) {
-				for (auto& stop : SplitString(rec.at(1), LINE_ROUTE)) {
+			if (rec.at(1).find(BUS_DELIMITER_ROUTE) != std::string_view::npos) {
+				for (auto& stop : SplitString(rec.at(1), BUS_LINE_ROUTE)) {
 					bus.stops.push_back(catalogue.getStop(cutWord(stop)));
 				}
 			}
 			else {
-				auto bus_route_ring = SplitString(rec.at(1), RING_ROUTE);
+				auto bus_route_ring = SplitString(rec.at(1), BUS_RING_ROUTE);
 				auto& bus_route_line = bus_route_ring;
 
 				//переводим кольцевоц маршрут в прямой
@@ -107,9 +100,10 @@ namespace transport_catalogue {
 			}
 			return bus;
 		}
-	}//namespace processing
-	namespace console_data_processing {
+
+
 		void readData(std::istream& input, TransportCatalogue& catalogue) {
+			using namespace detail;
 			int count = 0;
 			input >> count;
 
@@ -123,13 +117,13 @@ namespace transport_catalogue {
 				getline(input >> std::ws, line);
 				if (!line.size()) return;
 
-				if (line[0] == stop::DELIMITER) {
-					auto _ = line.substr(stop::BEGIN_LINE.size(), line.size());
+				if (line[0] == STOP_DELIMITER) {
+					auto _ = line.substr(STOP_BEGIN_LINE.size(), line.size());
 					stops.push_back(_);
 					distances.push_back(_);
 				}
-				else if (line[0] == bus::DELIMITER) {
-					buses.push_back(line.substr(bus::BEGIN_LINE.size(), line.size()));
+				else if (line[0] == BUS_DELIMITER) {
+					buses.push_back(line.substr(BUS_BEGIN_LINE.size(), line.size()));
 				}
 				else {
 					std::cout << "Input error" << std::endl;
@@ -138,15 +132,15 @@ namespace transport_catalogue {
 			}
 
 			for (auto& stop : stops) {
-				catalogue.addStop(stop::processing(stop));
+				catalogue.addStop(processingStop(stop));
 			}
 
 			for (auto& distance : distances) {
-				catalogue.addDistance(distance::processing(distance, catalogue));
+				processingDistance(distance, catalogue);
 			}
 
 			for (auto& bus : buses) {
-				catalogue.addBus(bus::processing(bus, catalogue));
+				catalogue.addBus(processingBus(bus, catalogue));
 			}
 		}
 	} //namespace console_data_processing
