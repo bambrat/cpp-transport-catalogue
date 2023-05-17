@@ -23,26 +23,26 @@ namespace transport_catalogue {
 	}
 
 	void TransportCatalogue::addDistance(const Stop* stopA, const Stop* stopB, int dist) {
-		getStop(stopA->name)->next_stop_dist.insert(DistanceMap::value_type(stopB,dist));
+		stopname_to_stop.at(stopA->name)->next_stop_dist.insert(DistanceMap::value_type(stopB, dist));
 	}
 
-	Bus* TransportCatalogue::getBus(std::string_view name) const {
+	const Bus* TransportCatalogue::getBus(std::string_view name) const {
 		if (busname_to_bus.find(name) == busname_to_bus.end()) { return nullptr; }
 		return busname_to_bus.at(name);
 	}
 
-	Stop* TransportCatalogue::getStop(std::string_view name) const {
+	const Stop* TransportCatalogue::getStop(std::string_view name) const {
 		if (stopname_to_stop.find(name) == stopname_to_stop.end()) { return nullptr; }
 		return stopname_to_stop.at(name);
 	}
 
-	std::unordered_set<const Stop*> TransportCatalogue::getUniqStops(const Bus* bus) const {
+	const std::unordered_set<const Stop*> TransportCatalogue::getUniqStops(const Bus* bus) const {
 		std::unordered_set<const Stop*> unique_stops;
 		unique_stops.insert(bus->stops.begin(), bus->stops.end());
 		return unique_stops;
 	}
 
-	double TransportCatalogue::getLength(Bus* bus) const {
+	double TransportCatalogue::getLength(const Bus* bus) const {
 		auto lambComputeDistance = [](const Stop* lhs, const Stop* rhs) {
 			return geo::ComputeDistance({ (*lhs).coord.lat, (*lhs).coord.lng },
 				{ (*rhs).coord.lat, (*rhs).coord.lng }); };

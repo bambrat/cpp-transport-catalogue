@@ -70,7 +70,6 @@ namespace transport_catalogue {
 				auto _ = SplitString(rec.at(i), DISTANCE_DELIMITER);
 				auto stopB = catalogue.getStop(_.at(1));
 				auto distanceAB = stoi(std::string(_.at(0)));
-				//distances.push_back({ stopA, stopB, distanceAB });
 				catalogue.addDistance(stopA, stopB, distanceAB);
 			}
 		}
@@ -82,20 +81,19 @@ namespace transport_catalogue {
 
 			if (rec.at(1).find(BUS_DELIMITER_ROUTE) != std::string_view::npos) {
 				for (auto& stop : SplitString(rec.at(1), BUS_LINE_ROUTE)) {
-					bus.stops.push_back(catalogue.getStop(cutWord(stop)));
+					bus.stops.push_back(const_cast<Stop*>(catalogue.getStop(cutWord(stop))));
 				}
 			}
 			else {
 				auto bus_route_ring = SplitString(rec.at(1), BUS_RING_ROUTE);
 				auto& bus_route_line = bus_route_ring;
 
-				//переводим кольцевоц маршрут в прямой
 				for (int i = int(bus_route_ring.size() - 2); i > -1; --i) {
 					bus_route_line.push_back(bus_route_ring.at(i));
 				}
 
 				for (auto& stop : bus_route_line) {
-					bus.stops.push_back(catalogue.getStop(cutWord(stop)));
+					bus.stops.push_back(const_cast<Stop*>(catalogue.getStop(cutWord(stop))));
 				}
 			}
 			return bus;

@@ -2,14 +2,14 @@
 
 namespace transport_catalogue {
 	namespace console_data_processing {
-		void showBusData(const TransportCatalogue& catalogue, std::string_view name) {
+		void showBusData(const TransportCatalogue& catalogue, std::string_view name, std::ostream& output) {
 			auto bus = catalogue.getBus(name);
 			
 			if (bus == nullptr) {
-				std::cout << "Bus " << name << ": not found" << std::endl;
+				output << "Bus " << name << ": not found" << std::endl;
 			}
 			else {
-				std::cout << "Bus " << bus->name << ": "
+				output << "Bus " << bus->name << ": "
 					<< bus->stops.size() << " stops on route, "
 					<< bus->unique_stops.size() << " unique stops, "
 					<< bus->route_length << " route length, "
@@ -18,25 +18,24 @@ namespace transport_catalogue {
 			}
 		}
 
-		void showStopData(const TransportCatalogue& catalogue, std::string_view name) {
+		void showStopData(const TransportCatalogue& catalogue, std::string_view name, std::ostream& output) {
 			auto stop = catalogue.getStop(name);
 
 			if (stop == nullptr) {
-				std::cout << "Stop " << name << ": not found" << std::endl;
+				output << "Stop " << name << ": not found" << std::endl;
 			}
 			else {
-				//auto unique_buses = catalogue.getUniqBuses(stop);
 				auto &unique_buses = stop->unique_buses;
 
 				if (unique_buses.size() == 0) {
-					std::cout << "Stop " << name << ": no buses" << std::endl;
+					output << "Stop " << name << ": no buses" << std::endl;
 				}
 				else {
-					std::cout << "Stop " << stop->name << ": buses ";
+					output << "Stop " << stop->name << ": buses ";
 					for (auto& bus : unique_buses) {
-						std::cout << bus << " ";
+						output << bus << " ";
 					}
-					std::cout << std::endl;
+					output << std::endl;
 				}
 			}
 		}
@@ -60,11 +59,11 @@ namespace transport_catalogue {
 			for (auto& str : query) {
 				if (str[0] == BUS_DELIMITER) {
 					str = str.substr(BUS_BEGIN_LINE.size(), str.size());
-					showBusData(catalogue, str);
+					showBusData(catalogue, str, std::cout);
 				}
 				else if (str[0] == STOP_DELIMITER) {
 					str = str.substr(STOP_BEGIN_LINE.size(), str.size());
-					showStopData(catalogue, str);
+					showStopData(catalogue, str, std::cout);
 				}
 				else {
 					std::cout << "Error query" << std::endl;

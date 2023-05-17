@@ -54,15 +54,15 @@ namespace transport_catalogue {
 
 		//stop
 		void addStop(Stop&& stop);
-		Stop* getStop(std::string_view name) const;
-		std::unordered_set<const Stop*> getUniqStops(const Bus* bus) const;
+		const Stop* getStop(std::string_view name) const;
+		const std::unordered_set<const Stop*> getUniqStops(const Bus* bus) const;
 		void addDistance(const Stop* stopA, const Stop* stopB, int dist);
 		size_t getDistanceStop(const Stop* start, const Stop* finish) const;
 		
 		//bus
 		void addBus(Bus&& bus);
-		Bus* getBus(std::string_view name) const;
-		double getLength(Bus* bus) const;
+		const Bus* getBus(std::string_view name) const;
+		double getLength(const Bus* bus) const;
 		size_t getDistanceBus(const Bus* bus) const;
 		
 	private:
