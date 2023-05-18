@@ -13,10 +13,14 @@ namespace transport_catalogue {
 		Bus* bus_ptr = &buses.back();
 		busname_to_bus.insert(BusMap::value_type(bus_ptr->name, bus_ptr));
 
-		for (auto stop : bus_ptr->stops) {
-			stop->buses.push_back(bus_ptr);
-			stop->unique_buses.insert(bus_ptr->name);
+		for (auto & stop : bus_ptr->stops_list) {
+			if (stopname_to_stop.find(stop) != stopname_to_stop.end()) {
+				bus_ptr->stops.push_back(stopname_to_stop.at(stop));
+				stopname_to_stop.at(stop)->buses.push_back(bus_ptr);
+				stopname_to_stop.at(stop)->unique_buses.insert(bus_ptr->name);
+			}
 		}
+
 		bus_ptr->route_length = double(getDistanceBus(bus_ptr));
 		bus_ptr->curvature = double(getDistanceBus(bus_ptr) / getLength(bus_ptr));
 		bus_ptr->unique_stops = getUniqStops(bus_ptr);

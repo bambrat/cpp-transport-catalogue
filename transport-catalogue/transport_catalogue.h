@@ -40,7 +40,7 @@ namespace transport_catalogue {
 	struct Bus {
 		std::string name;
 		std::vector<Stop*> stops;
-		size_t stops_on_route = 0;
+		std::vector<std::string_view> stops_list;
 		std::unordered_set<const Stop*> unique_stops;
 		double route_length = 0;
 		double curvature = 0;

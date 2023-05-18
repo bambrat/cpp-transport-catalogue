@@ -74,14 +74,14 @@ namespace transport_catalogue {
 			}
 		}
 
-		Bus processingBus(const std::string_view record, TransportCatalogue& catalogue) {
+		Bus processingBus(const std::string_view record) {
 			Bus bus;
 			auto rec = SplitString(record, MAIN_SPLIT);
 			bus.name = cutWord(rec.at(0));
 
 			if (rec.at(1).find(BUS_DELIMITER_ROUTE) != std::string_view::npos) {
 				for (auto& stop : SplitString(rec.at(1), BUS_LINE_ROUTE)) {
-					bus.stops.push_back(const_cast<Stop*>(catalogue.getStop(cutWord(stop))));
+					bus.stops_list.push_back((cutWord(stop)));
 				}
 			}
 			else {
@@ -93,7 +93,7 @@ namespace transport_catalogue {
 				}
 
 				for (auto& stop : bus_route_line) {
-					bus.stops.push_back(const_cast<Stop*>(catalogue.getStop(cutWord(stop))));
+					bus.stops_list.push_back((cutWord(stop)));
 				}
 			}
 			return bus;
@@ -138,7 +138,7 @@ namespace transport_catalogue {
 			}
 
 			for (auto& bus : buses) {
-				catalogue.addBus(processingBus(bus, catalogue));
+				catalogue.addBus(processingBus(bus));
 			}
 		}
 	} //namespace console_data_processing
