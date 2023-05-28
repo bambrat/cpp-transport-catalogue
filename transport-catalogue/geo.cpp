@@ -4,7 +4,6 @@
 #include <cmath>
 
 namespace geo {
-
 	double ComputeDistance(Coordinates from, Coordinates to) {
 		using namespace std;
 		if (from == to) {
@@ -15,5 +14,4 @@ namespace geo {
 			+ cos(from.lat * dr) * cos(to.lat * dr) * cos(abs(from.lng - to.lng) * dr))
 			* EARTH_RADIUS;
 	}
-
 }  // namespace geo

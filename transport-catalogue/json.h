@@ -7,8 +7,6 @@
 #include <variant>
 
 namespace json {
-    using namespace std::literals;
-
     class Node;
 
     using Dict = std::map<std::string, Node>;
@@ -25,14 +23,10 @@ namespace json {
         using Value = std::variant<std::nullptr_t, Array, Dict, bool, int, double, std::string>;
 
         Node() = default;
-        Node(bool value);
-        Node(Array array);
-        Node(Dict map);
-        Node(int value);
-        Node(std::string value);
-        Node(std::nullptr_t);
-        Node(double value);
 
+        template <typename Obj>
+        Node(Obj obj);
+        
         const Array& asArray() const;
         bool asBool() const;
         double asDouble() const;
@@ -54,6 +48,9 @@ namespace json {
     private:
         Value value_;
     };
+
+    template <typename Obj>
+    Node::Node(Obj obj) : value_(std::move(obj)) {}
 
     inline bool operator==(const Node& lhs, const Node& rhs) {
         return lhs.getValue() == rhs.getValue();

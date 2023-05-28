@@ -1,12 +1,16 @@
 #include "map_renderer.h"
 
+
 namespace map_renderer {
+    using namespace std::literals;
 
     bool SphereProjector::is_zero(double value) {
         return std::abs(value) < EPSILON;
     }
 
-    MapRenderer::MapRenderer(RenderSettings& render_settings) : render_settings_(render_settings) {}
+    MapRenderer::MapRenderer(const RenderSettings& render_settings)  {
+        render_settings_ = render_settings;
+    }
 
     svg::Point SphereProjector::operator()(geo::Coordinates coords) const {
         return { (coords.lng - min_lon_) * zoom_coeff_ + padding_,
@@ -48,6 +52,7 @@ namespace map_renderer {
     }
 
     void MapRenderer::setLineProperties(svg::Polyline& polyline, [[maybe_unused]] int line_number) const {
+        
         polyline.setStrokeColor(get_color(line_number));
         polyline.setFillColor("none"s);
         polyline.setStrokeWidth(render_settings_.line_width_);
@@ -199,4 +204,68 @@ namespace map_renderer {
         text.setFillColor("black"s);
     }
 
+    std::vector<geo::Coordinates> getStopsCoord(transport::domain::BusMap buses) {
+        std::vector<geo::Coordinates> stops_coordinates;
+
+        for (auto& [busname, bus] : buses) {
+            for (auto& stop : bus->stops) {
+                stops_coordinates.push_back(stop->coord);
+            }
+        }
+        return stops_coordinates;
+    }
+
+    json::Dict MapRenderer::creatingMapNode(int id, const transport::domain::BusMap& buses, const transport::domain::StopMap& stops ) const {
+        json::Dict result;
+        result.emplace("request_id", json::Node{ id });
+
+        svg::Document document;
+        auto sphere_projector = getSphereProjector(getStopsCoord(buses));
+        std::vector<std::string_view> buses_name;
+        std::vector<std::pair<const transport::domain::Bus*, int>> buses_palette;
+        std::vector<geo::Coordinates> stops_geo_coords;
+
+        int palette_size = 0;
+        int palette_index = 0;
+
+        palette_size = getPaletteSize();
+        if (palette_size == 0) {
+            std::cout << "color palette is empty";
+            return result;
+        }
+
+        if (buses.size() > 0) {
+            std::vector<std::string_view> buses_names;
+            for (auto& [busname, bus] : buses) buses_names.push_back(busname);
+
+            std::sort(buses_names.begin(), buses_names.end());
+
+            for (std::string_view bus_name : buses_names) {
+                auto bus_info = buses.at(bus_name);
+
+                if (bus_info) {
+                    if (bus_info->stops.size() > 0) {
+                        buses_palette.push_back(std::make_pair(bus_info, palette_index));
+                        palette_index++;
+
+                        if (palette_index == palette_size) {
+                            palette_index = 0;
+                        }
+                    }
+                }
+            }
+
+            if (buses_palette.size() > 0) {
+                addLine(buses_palette, document, sphere_projector);
+                addBusesName(buses_palette, document, sphere_projector);
+            }
+        }
+
+        addStopsIcons(document, sphere_projector, stops);
+        addStopsName(document, sphere_projector, stops);
+        std::stringstream map_svg;
+        document.render(map_svg);
+        result.emplace("map", json::Node{ map_svg.str() });
+        return result;
+    }
 }//end namespace map_renderer

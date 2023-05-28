@@ -2,6 +2,7 @@
 
 namespace svg {
 	using namespace std::literals;
+
 	inline void printColor(std::ostream& out, Rgb& rgb) {
 		out << "rgb("sv << static_cast<short>(rgb.red) << ","sv
 			<< static_cast<short>(rgb.green) << ","sv

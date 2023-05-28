@@ -18,8 +18,6 @@
 #endif
 
 namespace svg {
-	using namespace std::literals;
-
 	enum class StrokeLineCap {
 		BUTT,
 		ROUND,
@@ -45,6 +43,7 @@ namespace svg {
 	};
 
 	inline std::ostream& operator<<(std::ostream& out, Rgb color) {
+		using namespace std::literals;
 		out << "rgb("sv << +color.red << ","sv << +color.green << ","sv << +color.blue << ")"sv;
 		return out;
 	}
@@ -61,6 +60,7 @@ namespace svg {
 	};
 
 	inline std::ostream& operator<<(std::ostream& out, Rgba color) {
+		using namespace std::literals;
 		out << "rgba("sv << +color.red << ","sv << +color.green << ","sv << +color.blue << ","sv << +color.opacity << ")"sv;
 		return out;
 	}
@@ -109,6 +109,7 @@ namespace svg {
 		~PathProps() = default;
 
 		void renderAttrs(std::ostream& out) const {
+			using namespace std::literals;
 			if (fill_color_) {
 				out << "fill=\""sv << *fill_color_ << "\""sv;
 			}

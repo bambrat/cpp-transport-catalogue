@@ -2,9 +2,11 @@
 #include "domain.h"
 #include "geo.h"
 #include "svg.h"
+#include "json.h"
+
+#include <sstream>
 
 namespace map_renderer {
-    using namespace std::literals;
 
     inline const double EPSILON = 1e-6;
 
@@ -40,11 +42,14 @@ namespace map_renderer {
 
     class MapRenderer {
     public:
-        MapRenderer(RenderSettings& render_settings);
+        explicit MapRenderer(const RenderSettings& render_settings);
+
         SphereProjector getSphereProjector(const std::vector<geo::Coordinates>& points) const;
 
         RenderSettings getRenderSettings() const;
+
         int getPaletteSize() const;
+
         svg::Color get_color(int line_number) const;
 
         void addLine(std::vector<std::pair<const transport::domain::Bus*, int>>& buses_palette, svg::Document& doc, SphereProjector& sphere_projector) const;
@@ -65,14 +70,17 @@ namespace map_renderer {
 
         void setStopsTextColor(svg::Text& text, const std::string& name, svg::Point position) const;
 
+        json::Dict creatingMapNode(int id, const transport::domain::BusMap& buses, const transport::domain::StopMap& stops ) const;
+
         void setRouteTextAdditional(svg::Text& text, const std::string& name, svg::Point position) const;
 
         void setRouteTextColor(svg::Text& text, const std::string& name, int palette, svg::Point position) const;
 
         void setStopsCircles(svg::Circle& circle, svg::Point position) const;
 
+
     private:
-        RenderSettings& render_settings_;
+        RenderSettings render_settings_;
     };
 
     template <typename InputIt>

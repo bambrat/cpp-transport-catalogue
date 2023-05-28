@@ -9,7 +9,6 @@
 #include "geo.h"
 
 namespace transport::domain {
-	using namespace geo;
 	struct Bus;
 	struct Stop;
 
@@ -30,7 +29,7 @@ namespace transport::domain {
 
 	struct Stop {
 		std::string name;
-		Coordinates coord = { 0,0 };
+		geo::Coordinates coord = { 0,0 };
 		std::vector<Bus*> buses;
 		std::set<std::string_view> unique_buses;
 		DistanceMap next_stop_dist;

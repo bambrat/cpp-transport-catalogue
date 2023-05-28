@@ -1,10 +1,10 @@
 #include "json.h"
 
-using namespace std;
 namespace json {
+    using namespace std::literals;
     namespace {
 
-        Node loadNode(istream& input);
+        Node loadNode(std::istream& input);
 
         std::string loadLiteral(std::istream& input) {
             std::string str;
@@ -131,7 +131,7 @@ namespace json {
 
             while (true) {
                 if (it == end) {
-                    throw ParsingError("unable to parse string");
+                    throw ParsingError("unable to parse string"s);
                 }
 
                 const char ch = *it;
@@ -143,7 +143,7 @@ namespace json {
                 else if (ch == '\\') {
                     ++it;
                     if (it == end) {
-                        throw ParsingError("unable to parse string");
+                        throw ParsingError("unable to parse string"s);
                     }
 
                     const char esc_ch = *(it);
@@ -244,17 +244,7 @@ namespace json {
 
     }//end namespace
 
-    Node::Node(Array array) : value_(std::move(array)) {}
-    Node::Node(std::nullptr_t) : Node() {}
-    Node::Node(bool value) : value_(value) {}
-    Node::Node(Dict map) : value_(std::move(map)) {}
-    Node::Node(int value) : value_(value) {}
-    Node::Node(string value) : value_(std::move(value)) {}
-    Node::Node(double value) : value_(value) {}
-
     const Array& Node::asArray() const {
-        
-
         if (!isArray()) {
             throw std::logic_error("value is not an array"s);
         }
@@ -264,8 +254,6 @@ namespace json {
     }
 
     const Dict& Node::asMap() const {
-        using namespace std::literals;
-
         if (!isMap()) {
             throw std::logic_error("value is not a dictionary"s);
         }
@@ -274,9 +262,7 @@ namespace json {
         }
     }
 
-    const string& Node::asString() const {
-        using namespace std::literals;
-
+    const std::string& Node::asString() const {
         if (!isString()) {
             throw std::logic_error("value is not a string"s);
         }
@@ -286,8 +272,6 @@ namespace json {
     }
 
     int Node::asInt() const {
-        using namespace std::literals;
-
         if (!isInt()) {
             throw std::logic_error("value is not an int"s);
         }
@@ -297,8 +281,6 @@ namespace json {
     }
 
     double Node::asDouble() const {
-        using namespace std::literals;
-
         if (!isDouble()) {
             throw std::logic_error("value is not a double"s);
         }
@@ -311,8 +293,6 @@ namespace json {
     }
 
     bool Node::asBool() const {
-        using namespace std::literals;
-
         if (!isBool()) {
             throw std::logic_error("value is not a bool"s);
         }
@@ -332,7 +312,7 @@ namespace json {
 
     Document::Document(Node root) : root_(std::move(root)) {}
     const Node& Document::getRoot() const { return root_; }
-    Document load(istream& input) { 
+    Document load(std::istream& input) { 
         return Document{ loadNode(input) }; 
     }
 

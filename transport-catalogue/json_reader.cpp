@@ -1,5 +1,4 @@
 #include "json_reader.h"
-#include "map_renderer.h"
 
 #include <iomanip>
 #include <vector>
@@ -41,7 +40,9 @@ namespace json::reader {
 		return svg::Color{};
 	}
 
-	RenderSettings setRenderSetting(const Dict& render_settings) {
+	map_renderer::RenderSettings setRenderSetting(const Dict& render_settings) {
+		using namespace map_renderer;
+		using namespace std::literals;
 		RenderSettings result;
 
 		result.width_ = render_settings.at("width"s).asDouble();
@@ -69,8 +70,12 @@ namespace json::reader {
 		return result;
 	}
 
-	void setTransportCatalogueData(TransportCatalogue& catalogue , Array catalogue_data)
+	void setTransportCatalogueData(transport::catalogue::TransportCatalogue& catalogue, const json::Array catalogue_data)
 	{
+		using namespace std::literals;
+		using namespace transport::domain;
+
+
 		std::vector<Node> stop_req;
 		std::vector<Node> bus_req;
 
