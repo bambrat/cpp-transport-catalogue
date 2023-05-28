@@ -80,7 +80,7 @@ namespace map_renderer {
 
 
     private:
-        RenderSettings render_settings_;
+        const RenderSettings& render_settings_;
     };
 
     template <typename InputIt>

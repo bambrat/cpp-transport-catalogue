@@ -8,10 +8,8 @@ namespace map_renderer {
         return std::abs(value) < EPSILON;
     }
 
-    MapRenderer::MapRenderer(const RenderSettings& render_settings)  {
-        render_settings_ = render_settings;
-    }
-
+    MapRenderer::MapRenderer(const RenderSettings& render_settings) : render_settings_(render_settings) {}
+    
     svg::Point SphereProjector::operator()(geo::Coordinates coords) const {
         return { (coords.lng - min_lon_) * zoom_coeff_ + padding_,
                 (max_lat_ - coords.lat) * zoom_coeff_ + padding_ };
