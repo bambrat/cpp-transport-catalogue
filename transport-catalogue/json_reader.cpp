@@ -70,7 +70,7 @@ namespace json::reader {
 		return result;
 	}
 
-	void setTransportCatalogueData(transport::catalogue::TransportCatalogue& catalogue, const json::Array catalogue_data)
+	void setTransportCatalogueData(transport::catalogue::TransportCatalogue& catalogue, const json::Array& catalogue_data)
 	{
 		using namespace std::literals;
 		using namespace transport::domain;
