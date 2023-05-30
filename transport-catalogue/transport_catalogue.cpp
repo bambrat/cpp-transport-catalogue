@@ -1,6 +1,7 @@
 #include "transport_catalogue.h"
 
-namespace transport_catalogue {
+namespace transport::catalogue {
+	using namespace transport::domain;
 
 	void TransportCatalogue::addStop(Stop&& stop) {
 		stops.push_back(std::move(stop));
@@ -13,7 +14,7 @@ namespace transport_catalogue {
 		Bus* bus_ptr = &buses.back();
 		busname_to_bus.insert(BusMap::value_type(bus_ptr->name, bus_ptr));
 
-		for (auto & stop : bus_ptr->stops_list) {
+		for (auto& stop : bus_ptr->stops_list) {
 			if (stopname_to_stop.find(stop) != stopname_to_stop.end()) {
 				bus_ptr->stops.push_back(stopname_to_stop.at(stop));
 				stopname_to_stop.at(stop)->buses.push_back(bus_ptr);
@@ -22,7 +23,7 @@ namespace transport_catalogue {
 		}
 
 		bus_ptr->route_length = double(getDistanceBus(bus_ptr));
-		bus_ptr->curvature = double(getDistanceBus(bus_ptr) / getLength(bus_ptr));
+		bus_ptr->curvature = bus_ptr->route_length / getLength(bus_ptr);
 		bus_ptr->unique_stops = getUniqStops(bus_ptr);
 	}
 
@@ -77,5 +78,13 @@ namespace transport_catalogue {
 			distanceBus += getDistanceStop(bus->stops[i], bus->stops[i + 1]);
 		}
 		return distanceBus;
+	}
+
+	const BusMap& TransportCatalogue::getAllBuses() const {
+		return busname_to_bus;
+	}
+
+	const StopMap& TransportCatalogue::getAllStops() const {
+		return stopname_to_stop;
 	}
 }
