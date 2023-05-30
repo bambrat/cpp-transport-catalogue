@@ -7,6 +7,10 @@
 #include <sstream>
 #include <string>
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 10ab7554ddb88db1f9df3aa1be3851c045b11d50
 namespace json::reader {
 
 	svg::Color setColor(const Node& node) {
@@ -74,11 +78,19 @@ namespace json::reader {
 		using namespace std::literals;
 		using namespace transport::domain;
 
+<<<<<<< HEAD
+=======
+
+>>>>>>> 10ab7554ddb88db1f9df3aa1be3851c045b11d50
 		std::vector<Node> stop_req;
 		std::vector<Node> bus_req;
 
 		for (const auto& request : catalogue_data) {
+<<<<<<< HEAD
 			const std::string& type = request.asDict().at("type"s).asString();
+=======
+			const std::string& type = request.asMap().at("type"s).asString();
+>>>>>>> 10ab7554ddb88db1f9df3aa1be3851c045b11d50
 			if (type == "Stop"s) {
 				stop_req.push_back(request);
 			}
@@ -89,15 +101,26 @@ namespace json::reader {
 
 		for (auto & stop_ : stop_req) {
 			Stop stop;
+<<<<<<< HEAD
 			stop.name = stop_.asDict().at("name"s).asString();
 			stop.coord = { stop_.asDict().at("latitude"s).asDouble(),
 						   stop_.asDict().at("longitude"s).asDouble() };
+=======
+			stop.name = stop_.asMap().at("name"s).asString();
+			stop.coord = { stop_.asMap().at("latitude"s).asDouble(), 
+						   stop_.asMap().at("longitude"s).asDouble() };
+>>>>>>> 10ab7554ddb88db1f9df3aa1be3851c045b11d50
 			catalogue.addStop(std::move(stop));
 		}
 
 		for (auto& stop_ : stop_req) {
+<<<<<<< HEAD
 			auto stopA = catalogue.getStop(stop_.asDict().at("name"s).asString());
 			for (const auto& [stop_name, distance] : stop_.asDict().at("road_distances"s).asDict()) {
+=======
+			auto stopA = catalogue.getStop(stop_.asMap().at("name"s).asString());
+			for (const auto& [stop_name, distance] : stop_.asMap().at("road_distances"s).asMap()) {
+>>>>>>> 10ab7554ddb88db1f9df3aa1be3851c045b11d50
 				auto stopB = catalogue.getStop(stop_name);
 				auto distanceAB = distance.asInt();
 				catalogue.addDistance(stopA, stopB, distanceAB);
@@ -106,10 +129,17 @@ namespace json::reader {
 
 		for (auto& bus_ : bus_req) {
 			Bus bus;
+<<<<<<< HEAD
 			bus.name = bus_.asDict().at("name"s).asString();
 			if (!bus_.asDict().at("is_roundtrip"s).asBool()) {
 				
 				auto bus_route_ring = bus_.asDict().at("stops"s).asArray();
+=======
+			bus.name = bus_.asMap().at("name"s).asString();
+			if (!bus_.asMap().at("is_roundtrip"s).asBool()) {
+				
+				auto bus_route_ring = bus_.asMap().at("stops"s).asArray();
+>>>>>>> 10ab7554ddb88db1f9df3aa1be3851c045b11d50
 				auto& bus_route_line = bus_route_ring;
 
 				for (int i = int(bus_route_ring.size() - 2); i > -1; --i) {
@@ -121,7 +151,11 @@ namespace json::reader {
 				}
 			}
 			else {
+<<<<<<< HEAD
 				for (const auto& stop_name : bus_.asDict().at("stops"s).asArray()) {
+=======
+				for (const auto& stop_name : bus_.asMap().at("stops"s).asArray()) {
+>>>>>>> 10ab7554ddb88db1f9df3aa1be3851c045b11d50
 					bus.stops_list.push_back(stop_name.asString());
 				}
 				bus.is_roundtrip = true;
