@@ -3,21 +3,12 @@
 #include <iostream>
 #include <map>
 #include <string>
-<<<<<<< HEAD
 #include <variant>
 #include <vector>
 
 namespace json {
 
     class Node;
-=======
-#include <vector>
-#include <variant>
-
-namespace json {
-    class Node;
-
->>>>>>> 10ab7554ddb88db1f9df3aa1be3851c045b11d50
     using Dict = std::map<std::string, Node>;
     using Array = std::vector<Node>;
 
@@ -26,7 +17,6 @@ namespace json {
         using runtime_error::runtime_error;
     };
 
-<<<<<<< HEAD
     class Node final
         : private std::variant<std::nullptr_t, Array, Dict, bool, int, double, std::string> {
     public:
@@ -119,53 +109,12 @@ namespace json {
         }
     };
 
-=======
-    class Node {
-    public:
-
-        using Value = std::variant<std::nullptr_t, Array, Dict, bool, int, double, std::string>;
-
-        Node() = default;
-
-        template <typename Obj>
-        Node(Obj obj);
-        
-        const Array& asArray() const;
-        bool asBool() const;
-        double asDouble() const;
-        int asInt() const;
-        const Dict& asMap() const;
-        const std::string& asString() const;
-
-        bool isArray() const;
-        bool isBool() const;
-        bool isDouble() const;
-        bool isInt() const;
-        bool isMap() const;
-        bool isNull() const;
-        bool isPureDouble() const;
-        bool isString() const;
-
-        const Value& getValue() const { return value_; };
-
-    private:
-        Value value_;
-    };
-
-    template <typename Obj>
-    Node::Node(Obj obj) : value_(std::move(obj)) {}
-
-    inline bool operator==(const Node& lhs, const Node& rhs) {
-        return lhs.getValue() == rhs.getValue();
-    }
->>>>>>> 10ab7554ddb88db1f9df3aa1be3851c045b11d50
     inline bool operator!=(const Node& lhs, const Node& rhs) {
         return !(lhs == rhs);
     }
 
     class Document {
     public:
-<<<<<<< HEAD
         explicit Document(Node root)
             : root_(std::move(root)) {
         }
@@ -173,40 +122,21 @@ namespace json {
         const Node& getRoot() const {
             return root_;
         }
-=======
-        Document() = default;
-        explicit Document(Node root);
-        const Node& getRoot() const;
->>>>>>> 10ab7554ddb88db1f9df3aa1be3851c045b11d50
 
     private:
         Node root_;
     };
 
-<<<<<<< HEAD
     inline bool operator==(const Document& lhs, const Document& rhs) {
         return lhs.getRoot() == rhs.getRoot();
     }
 
-=======
-    Document load(std::istream& input);
-
-    inline bool operator==(const Document& lhs, const Document& rhs) {
-        return lhs.getRoot() == rhs.getRoot();
-    }
->>>>>>> 10ab7554ddb88db1f9df3aa1be3851c045b11d50
     inline bool operator!=(const Document& lhs, const Document& rhs) {
         return !(lhs == rhs);
     }
 
-<<<<<<< HEAD
     Document load(std::istream& input);
 
     void print(const Document& doc, std::ostream& output);
 
 }  // namespace json
-=======
-    void print(const Document& doc, std::ostream& output);
-
-}//end namespace json
->>>>>>> 10ab7554ddb88db1f9df3aa1be3851c045b11d50

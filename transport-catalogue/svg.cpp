@@ -226,19 +226,11 @@ namespace svg {
 			<< font_size_ << "\" "sv;
 
 		if (!font_family_.empty()) {
-<<<<<<< HEAD
 			out << "font-family=\""sv << font_family_ << "\""sv;
 		}
 
 		if (!font_weight_.empty()) {
 			out << " font-weight=\""sv << font_weight_ << "\""sv;
-=======
-			out << "font-family=\""sv << font_family_ << "\" "sv;
-		}
-
-		if (!font_weight_.empty()) {
-			out << "font-weight=\""sv << font_weight_ << "\""sv;
->>>>>>> 10ab7554ddb88db1f9df3aa1be3851c045b11d50
 		}
 
 		out << ">"sv << deleteSpaces(uniqSymbols(data_)) << "</text>"sv;

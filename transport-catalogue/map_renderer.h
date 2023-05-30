@@ -50,11 +50,7 @@ namespace map_renderer {
 
         int getPaletteSize() const;
 
-<<<<<<< HEAD
         svg::Color getСolor(int line_number) const;
-=======
-        svg::Color get_color(int line_number) const;
->>>>>>> 10ab7554ddb88db1f9df3aa1be3851c045b11d50
 
         void addLine(std::vector<std::pair<const transport::domain::Bus*, int>>& buses_palette, svg::Document& doc, SphereProjector& sphere_projector) const;
 
@@ -62,13 +58,7 @@ namespace map_renderer {
 
         void addBusesName(std::vector<std::pair<const transport::domain::Bus*, int>>& buses_palette, svg::Document& doc, SphereProjector& sphere_projector) const;
 
-<<<<<<< HEAD
         void addStopsInfo(svg::Document& doc, SphereProjector& sphere_projector,const transport::domain::StopMap& stops) const;
-=======
-        void addStopsIcons(svg::Document& doc, SphereProjector& sphere_projector,const transport::domain::StopMap& stops) const;
-
-        void addStopsName(svg::Document& doc, SphereProjector& sphere_projector, const transport::domain::StopMap& stops) const;
->>>>>>> 10ab7554ddb88db1f9df3aa1be3851c045b11d50
 
         void setRouteTextCommon(svg::Text& text, const std::string& name, svg::Point position) const;
 
@@ -78,10 +68,6 @@ namespace map_renderer {
 
         void setStopsTextColor(svg::Text& text, const std::string& name, svg::Point position) const;
 
-<<<<<<< HEAD
-=======
-        json::Dict creatingMapNode(int id, const transport::domain::BusMap& buses, const transport::domain::StopMap& stops ) const;
->>>>>>> 10ab7554ddb88db1f9df3aa1be3851c045b11d50
 
         void setRouteTextAdditional(svg::Text& text, const std::string& name, svg::Point position) const;
 
@@ -89,11 +75,8 @@ namespace map_renderer {
 
         void setStopsCircles(svg::Circle& circle, svg::Point position) const;
 
-<<<<<<< HEAD
         const std::string getMapJson(const transport::domain::BusMap& buses, const transport::domain::StopMap& stops) const;
 
-=======
->>>>>>> 10ab7554ddb88db1f9df3aa1be3851c045b11d50
 
     private:
         const RenderSettings& render_settings_;
