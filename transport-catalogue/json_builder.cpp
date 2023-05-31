@@ -2,40 +2,26 @@
 
 namespace json {
 
-	BaseContext::BaseContext(Builder& builder) : builder_(builder) {}
+	Builder::BaseContext::BaseContext(Builder& builder) : builder_(builder) {}
 
-	KeyContext BaseContext::key(const std::string& key) { return builder_.key(key); }
-	Builder& BaseContext::value(const Node::Value& value) { return builder_.value(value); }
+	Builder::KeyContext Builder::BaseContext::key(const std::string& key) { return builder_.key(key); }
+	Builder& Builder::BaseContext::value(const Node::Value& value) { return builder_.value(value); }
 
-	DictionaryContext BaseContext::startDict() { return DictionaryContext(builder_.startDict()); }
-	Builder& BaseContext::endDict() { return builder_.endDict(); }
+	Builder::DictionaryContext Builder::BaseContext::startDict() { return Builder::DictionaryContext(builder_.startDict()); }
+	Builder& Builder::BaseContext::endDict() { return builder_.endDict(); }
 
-	ArrayContext BaseContext::startArray() { return ArrayContext(builder_.startArray()); }
-	Builder& BaseContext::endArray() { return builder_.endArray(); }
+	Builder::ArrayContext Builder::BaseContext::startArray() { return Builder::ArrayContext(builder_.startArray()); }
+	Builder& Builder::BaseContext::endArray() { return builder_.endArray(); }
 
-	KeyContext::KeyContext(Builder& builder) : BaseContext(builder) {}
+	Builder::KeyContext::KeyContext(Builder& builder) : BaseContext(builder) {}
 
-	DictionaryContext KeyContext::value(const Node::Value& value) { return BaseContext::value(value); }
+	Builder::DictionaryContext Builder::KeyContext::value(const Node::Value& value) { return BaseContext::value(value); }
 
-	DictionaryContext::DictionaryContext(Builder& builder) : BaseContext(builder) {}
+	Builder::DictionaryContext::DictionaryContext(Builder& builder) : BaseContext(builder) {}
 
-	ArrayContext::ArrayContext(Builder& builder) : BaseContext(builder) {}
+	Builder::ArrayContext::ArrayContext(Builder& builder) : BaseContext(builder) {}
 
-	ArrayContext ArrayContext::value(const Node::Value& value) { return BaseContext::value(value); }
-
-	Node Builder::make_node(const Node::Value& value_) {
-		Node node;
-
-		if (std::holds_alternative<bool>(value_)) node = Node(std::get<bool>(value_));
-		else if (std::holds_alternative<int>(value_)) node = Node(std::get<int>(value_));
-		else if (std::holds_alternative<double>(value_)) node = Node(std::get<double>(value_));
-		else if (std::holds_alternative<std::string>(value_)) node = Node((std::get<std::string>(value_)));
-		else if (std::holds_alternative<Array>(value_)) node = Node((std::get<Array>(value_)));
-		else if (std::holds_alternative<Dict>(value_)) node = Node((std::get<Dict>(value_)));
-		else node = Node();
-
-		return node;
-	}
+	Builder::ArrayContext Builder::ArrayContext::value(const Node::Value& value) { return BaseContext::value(value); }
 
 	void Builder::add_node(const Node& node) {
 		if (nodes_.empty()) {
@@ -70,21 +56,21 @@ namespace json {
 		return;
 	}
 
-	KeyContext Builder::key(const std::string& key_) {
+	Builder::KeyContext Builder::key(const std::string& key) {
 		if (nodes_.empty()) throw std::logic_error("unable to create key");
 
-		auto key_ptr = std::make_unique<Node>(key_);
+		auto key_ptr = std::make_unique<Node>(key);
 		if (nodes_.back()->isDict()) nodes_.emplace_back(std::move(key_ptr));
 
 		return KeyContext(*this);
 	}
 
-	Builder& Builder::value(const Node::Value& value_) {
-		add_node(make_node(value_));
+	Builder& Builder::value(const Node::Value& value) {
+		add_node(Node(value));
 		return *this;
 	}
 
-	DictionaryContext Builder::startDict() {
+	Builder::DictionaryContext Builder::startDict() {
 		nodes_.emplace_back(std::move(std::make_unique<Node>(Dict())));
 		return DictionaryContext(*this);
 	}
@@ -100,7 +86,7 @@ namespace json {
 		return *this;
 	}
 
-	ArrayContext Builder::startArray() {
+	Builder::ArrayContext Builder::startArray() {
 		nodes_.emplace_back(std::move(std::make_unique<Node>(Array())));
 		return ArrayContext(*this);
 	}

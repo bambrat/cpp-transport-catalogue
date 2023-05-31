@@ -87,12 +87,12 @@ namespace svg {
 	}
 
 	Circle& Circle::setCenter(Point center) {
-		center_ = center;
+		center_ = std::move(center);
 		return *this;
 	}
 
 	Circle& Circle::setRadius(double radius) {
-		radius_ = radius;
+		radius_ = std::move(radius);
 		return *this;
 	}
 
@@ -108,7 +108,7 @@ namespace svg {
 	}
 
 	Polyline& Polyline::addPoint(Point point) {
-		points_.push_back(point);
+		points_.push_back(std::move(point));
 		return *this;
 	}
 
@@ -129,12 +129,12 @@ namespace svg {
 	}
 
 	Text& Text::setPosition(Point pos) {
-		position_ = pos;
+		position_ = std::move(pos);
 		return *this;
 	}
 
 	Text& Text::setOffset(Point offset) {
-		offset_ = offset;
+		offset_ = std::move(offset);
 		return *this;
 	}
 

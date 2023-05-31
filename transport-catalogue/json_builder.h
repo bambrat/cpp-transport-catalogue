@@ -6,16 +6,20 @@
 #include <memory>
 
 namespace json {
-	class KeyContext;
-	class DictionaryContext;
-	class ArrayContext;
-
 	class Builder {
-	public:
-		Node make_node(const Node::Value& value_);
+	private:
+		Node root_;
+		std::vector<std::unique_ptr<Node>> nodes_;
 		void add_node(const Node& node);
 
-		KeyContext key(const std::string& key_);
+		class BaseContext;
+		class KeyContext;
+		class DictionaryContext;
+		class ArrayContext;
+
+	public:
+
+		KeyContext key(const std::string& key);
 		Builder& value(const Node::Value& value);
 
 		DictionaryContext startDict();
@@ -25,13 +29,9 @@ namespace json {
 		Builder& endArray();
 
 		Node build();
-
-	private:
-		Node root_;
-		std::vector<std::unique_ptr<Node>> nodes_;
 	};
 
-	class BaseContext {
+	class Builder::BaseContext {
 	public:
 		BaseContext(Builder& builder);
 
@@ -48,7 +48,7 @@ namespace json {
 		Builder& builder_;
 	};
 
-	class KeyContext : public BaseContext {
+	class Builder::KeyContext : public BaseContext {
 	public:
 		KeyContext(Builder& builder);
 
@@ -60,7 +60,7 @@ namespace json {
 		DictionaryContext value(const Node::Value& value);
 	};
 
-	class DictionaryContext : public BaseContext {
+	class Builder::DictionaryContext : public BaseContext {
 	public:
 		DictionaryContext(Builder& builder);
 
@@ -72,7 +72,7 @@ namespace json {
 		Builder& value(const Node::Value& value) = delete;
 	};
 
-	class ArrayContext : public BaseContext {
+	class Builder::ArrayContext : public BaseContext {
 	public:
 		ArrayContext(Builder& builder);
 

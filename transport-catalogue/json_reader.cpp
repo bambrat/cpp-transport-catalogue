@@ -78,12 +78,12 @@ namespace json::reader {
 		std::vector<Node> bus_req;
 
 		for (const auto& request : catalogue_data) {
-			const std::string& type = request.asDict().at("type"s).asString();
+			auto& type = request.asDict().at("type"s).asString();
 			if (type == "Stop"s) {
-				stop_req.push_back(request);
+				stop_req.push_back(std::move(request));
 			}
 			if (type == "Bus"s) {
-				bus_req.push_back(request);
+				bus_req.push_back(std::move(request));
 			}
 		}
 
