@@ -14,7 +14,7 @@ namespace request_handler {
         void printResponse(const json::Array& stat_requests);
 
     private:
-        json::Document responseData(const json::Array& stat_requests);
+        const json::Document responseData(const json::Array& stat_requests);
 
         const transport::catalogue::TransportCatalogue& db_;
         const map_renderer::MapRenderer& map_renderer_;

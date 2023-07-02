@@ -25,7 +25,7 @@ namespace map_renderer {
         return render_settings_.color_palette_.size();
     }
 
-    Color MapRenderer::getСolor(int line_number) const {
+    const Color MapRenderer::getСolor(int line_number) const {
         return render_settings_.color_palette_[line_number];
     }
 

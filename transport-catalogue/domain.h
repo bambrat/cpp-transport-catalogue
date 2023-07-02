@@ -16,6 +16,7 @@
 namespace transport::domain {
 	struct Bus;
 	struct Stop;
+	struct EdgeId;
 
 	namespace detail {
 		struct DistanceHasher {
@@ -115,4 +116,8 @@ namespace transport::domain {
 		double underlayer_width_;
 		std::vector<svg::Color> color_palette_;
 	};
+
+	using EdgeIdMap = std::unordered_map<graph::EdgeId, std::variant<transport::domain::EdgeByStop, transport::domain::EdgeByBus>>;
+	using RouterStopsMap = std::unordered_map<const transport::domain::Stop*, transport::domain::RouterByStop>;
+
 }//transport::catalogue::domain

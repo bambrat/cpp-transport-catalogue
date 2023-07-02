@@ -46,7 +46,7 @@ namespace map_renderer {
         void setRouteTextColor(svg::Text& text, const std::string& name, int palette, svg::Point position) const;
         void setStopsCircles(svg::Circle& circle, svg::Point position) const;
 
-        svg::Color getСolor(int line_number) const;
+        const svg::Color getСolor(int line_number) const;
         int getPaletteSize() const;
 
         const transport::domain::RenderSettings& render_settings_;

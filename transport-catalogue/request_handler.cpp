@@ -9,7 +9,7 @@ namespace request_handler {
     RequestHandler::RequestHandler(TransportCatalogue& db, const MapRenderer& map_renderer, RouterByGraph& router_by_graph)
         : db_(db), map_renderer_(map_renderer), router_by_graph_(router_by_graph) {}
 
-    json::Document RequestHandler::responseData(const json::Array& stat_requests)
+    const json::Document RequestHandler::responseData(const json::Array& stat_requests)
     {
         using namespace std::string_literals;
         using namespace json;

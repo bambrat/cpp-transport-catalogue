@@ -15,10 +15,10 @@ namespace transport::router {
 			VertexId bus_wait_start = i++;
 			VertexId bus_wait_end = i++;
 
-			stop_to_router_[stop] = RouterByStop{ bus_wait_start, bus_wait_end };
+			stop_router_map_[stop] = RouterByStop{ bus_wait_start, bus_wait_end };
 
 			auto id = graph_->addEdge(Edge<double>{bus_wait_start, bus_wait_end, settings_.wait_time});
-			edge_id_to_edge_[id] = EdgeByStop{ name_stop, settings_.wait_time };
+			edge_id_map_[id] = EdgeByStop{ name_stop, settings_.wait_time };
 		}
 
 		for (auto& [name_bus, bus] : allbuses) {
@@ -53,29 +53,29 @@ namespace transport::router {
 
 				++span;
 
-				VertexId from = stop_to_router_.at(*it).bus_wait_end;
-				VertexId to = stop_to_router_.at(*it_next).bus_wait_start;
+				VertexId from = stop_router_map_.at(*it).bus_wait_end;
+				VertexId to = stop_router_map_.at(*it_next).bus_wait_start;
 				auto weight = distance * velocity;
 
 				size_t id = graph_->addEdge(Edge<double>{from, to, weight});
-				edge_id_to_edge_[id] = EdgeByBus{ name, span, weight };
+				edge_id_map_[id] = EdgeByBus{ name, span, weight };
 			}
 		}
 	}
 
-	std::optional<RouterByStop> RouterByGraph::getRouterByStop(const Stop* stop) const {
-		if (stop_to_router_.count(stop)) { return stop_to_router_.at(stop); }
+	const std::optional<RouterByStop> RouterByGraph::getRouterByStop(const Stop* stop) const {
+		if (stop_router_map_.count(stop)) { return stop_router_map_.at(stop); }
 		return std::nullopt;
 	}
 
-	std::optional<RouteInfomation> RouterByGraph::getRouteInfomation(VertexId start, VertexId end) const {
+	const std::optional<RouteInfomation> RouterByGraph::getRouteInfomation(VertexId start, VertexId end) const {
 		const auto& route_info = router_->buildRoute(start, end);
 		if (route_info) {
 			RouteInfomation result;
 			result.total_time = route_info->weight;
 
 			for (const auto edge : route_info->edges) {
-				result.edges.emplace_back(edge_id_to_edge_.at(edge));
+				result.edges.emplace_back(edge_id_map_.at(edge));
 			}
 			return result;
 		}
