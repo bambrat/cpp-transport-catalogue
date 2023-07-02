@@ -3,8 +3,13 @@
 #include "json.h"
 #include "map_renderer.h"
 #include "transport_catalogue.h"
+#include "transport_router.h"
 
 namespace json::reader {
-	map_renderer::RenderSettings setRenderSetting(const Dict& render_settings);
-	void setTransportCatalogueData(transport::catalogue::TransportCatalogue& catalogue,const json::Array& catalogue_data);
-}//json::reader
+	using namespace transport;
+
+	domain::RenderSettings setRenderSetting(const Dict& render_settings);
+	domain::RouterSettings setRouterSetting(const Dict& routing_settings);
+	void setTransportData(catalogue::TransportCatalogue& catalogue, router::RouterByGraph& router_by_graph , const json::Array& catalogue_data);
+
+}//end namespace json::reader

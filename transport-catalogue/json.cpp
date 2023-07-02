@@ -253,8 +253,8 @@ namespace json {
         }
     }
 
-    const Dict& Node::asMap() const {
-        if (!isMap()) {
+    const Dict& Node::asDict() const {
+        if (!isDict()) {
             throw std::logic_error("value is not a dictionary"s);
         }
         else {
@@ -308,12 +308,12 @@ namespace json {
     bool Node::isBool() const { return std::holds_alternative<bool>(value_); }
     bool Node::isString() const { return std::holds_alternative<std::string>(value_); }
     bool Node::isArray() const { return std::holds_alternative<Array>(value_); }
-    bool Node::isMap() const { return std::holds_alternative<Dict>(value_); }
+    bool Node::isDict() const { return std::holds_alternative<Dict>(value_); }
 
     Document::Document(Node root) : root_(std::move(root)) {}
     const Node& Document::getRoot() const { return root_; }
-    Document load(std::istream& input) { 
-        return Document{ loadNode(input) }; 
+    Document load(std::istream& input) {
+        return Document{ loadNode(input) };
     }
 
     struct PrintContext {

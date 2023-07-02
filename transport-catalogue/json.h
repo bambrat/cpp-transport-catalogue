@@ -26,19 +26,19 @@ namespace json {
 
         template <typename Obj>
         Node(Obj obj);
-        
+
         const Array& asArray() const;
         bool asBool() const;
         double asDouble() const;
         int asInt() const;
-        const Dict& asMap() const;
+        const Dict& asDict() const;
         const std::string& asString() const;
 
         bool isArray() const;
         bool isBool() const;
         bool isDouble() const;
         bool isInt() const;
-        bool isMap() const;
+        bool isDict() const;
         bool isNull() const;
         bool isPureDouble() const;
         bool isString() const;
