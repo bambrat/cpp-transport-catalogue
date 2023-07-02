@@ -58,7 +58,7 @@ namespace transport::domain {
 
 	struct EdgeByBus {
 		std::string_view bus_name;
-		size_t span_count = 0;
+		int span_count = 0;
 		double time = 0;
 	};
 
@@ -95,7 +95,7 @@ namespace transport::domain {
 			return json::Builder{}.startDict()
 				.key("type"s).value("Bus"s)
 				.key("bus"s).value(std::string(edge_info.bus_name))
-				.key("span_count"s).value(static_cast<int>(edge_info.span_count))
+				.key("span_count"s).value(edge_info.span_count)
 				.key("time"s).value(edge_info.time)
 				.endDict()
 				.build();

@@ -39,7 +39,7 @@ namespace transport::router {
 		for (auto it = first; it != last; ++it) {
 
 			size_t distance = 0;
-			size_t span = 0;
+			int span = 0;
 			double velocity = 1.0 / (settings_.velocity * KM / HOUR);
 
 			for (auto it_next = std::next(it); it_next != last; ++it_next) {
