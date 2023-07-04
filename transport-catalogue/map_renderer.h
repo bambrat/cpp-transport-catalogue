@@ -2,28 +2,11 @@
 #include "domain.h"
 #include "geo.h"
 #include "svg.h"
-#include "json.h"
 
 #include <sstream>
 
 namespace map_renderer {
-
     inline const double EPSILON = 1e-6;
-
-    class SphereProjector {
-    public:
-        template <typename InputIt>
-        SphereProjector(InputIt points_begin, InputIt points_end, double max_width, double max_height, double padding);
-        svg::Point operator()(geo::Coordinates coords) const;
-
-    private:
-        double padding_;
-        double min_lon_ = 0;
-        double max_lat_ = 0;
-        double zoom_coeff_ = 0;
-
-        bool is_zero(double value);
-    };
 
     struct RenderSettings {
         double width_;
@@ -40,45 +23,45 @@ namespace map_renderer {
         std::vector<svg::Color> color_palette_;
     };
 
+    class SphereProjector {
+    public:
+        template <typename InputIt>
+        SphereProjector(InputIt points_begin, InputIt points_end, double max_width, double max_height, double padding);
+        svg::Point operator()(geo::Coordinates coords) const;
+
+    private:
+        double padding_;
+        double min_lon_ = 0;
+        double max_lat_ = 0;
+        double zoom_coeff_ = 0;
+
+        bool is_zero(double value);
+    };
+
     class MapRenderer {
     public:
         explicit MapRenderer(const RenderSettings& render_settings);
-
-        SphereProjector getSphereProjector(const std::vector<geo::Coordinates>& points) const;
-
-        RenderSettings getRenderSettings() const;
-
-        int getPaletteSize() const;
-
-        svg::Color getСolor(int line_number) const;
-
-        void addLine(std::vector<std::pair<const transport::domain::Bus*, int>>& buses_palette, svg::Document& doc, SphereProjector& sphere_projector) const;
-
-        void setLineProperties(svg::Polyline& polyline, int line_number) const;
-
-        void addBusesName(std::vector<std::pair<const transport::domain::Bus*, int>>& buses_palette, svg::Document& doc, SphereProjector& sphere_projector) const;
-
-        void addStopsInfo(svg::Document& doc, SphereProjector& sphere_projector,const transport::domain::StopMap& stops) const;
-
-        void setRouteTextCommon(svg::Text& text, const std::string& name, svg::Point position) const;
-
-        void setStopsTextCommon(svg::Text& text, const std::string& name, svg::Point position) const;
-
-        void setStopsTextAdditional(svg::Text& text, const std::string& name, svg::Point position) const;
-
-        void setStopsTextColor(svg::Text& text, const std::string& name, svg::Point position) const;
-
-
-        void setRouteTextAdditional(svg::Text& text, const std::string& name, svg::Point position) const;
-
-        void setRouteTextColor(svg::Text& text, const std::string& name, int palette, svg::Point position) const;
-
-        void setStopsCircles(svg::Circle& circle, svg::Point position) const;
-
         const std::string getMapJson(const transport::domain::BusMap& buses, const transport::domain::StopMap& stops) const;
 
-
     private:
+        SphereProjector getSphereProjector(const std::vector<geo::Coordinates>& points) const;
+        
+        void addStopsInfo(svg::Document& doc, SphereProjector& sphere_projector, const transport::domain::StopMap& stops) const;
+        void addLine(std::vector<std::pair<const transport::domain::Bus*, int>>& buses_palette, svg::Document& doc, SphereProjector& sphere_projector) const;
+        void addBusesName(std::vector<std::pair<const transport::domain::Bus*, int>>& buses_palette, svg::Document& doc, SphereProjector& sphere_projector) const;
+        
+        void setLineProperties(svg::Polyline& polyline, int line_number) const;
+        void setRouteTextCommon(svg::Text& text, const std::string& name, svg::Point position) const;
+        void setStopsTextCommon(svg::Text& text, const std::string& name, svg::Point position) const;
+        void setStopsTextAdditional(svg::Text& text, const std::string& name, svg::Point position) const;
+        void setStopsTextColor(svg::Text& text, const std::string& name, svg::Point position) const;
+        void setRouteTextAdditional(svg::Text& text, const std::string& name, svg::Point position) const;
+        void setRouteTextColor(svg::Text& text, const std::string& name, int palette, svg::Point position) const;
+        void setStopsCircles(svg::Circle& circle, svg::Point position) const;
+
+        const svg::Color getСolor(int line_number) const;
+        int getPaletteSize() const;
+
         const RenderSettings& render_settings_;
     };
 

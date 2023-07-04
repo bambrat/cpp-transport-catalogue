@@ -44,4 +44,5 @@ namespace transport::domain {
 		double curvature = 0;
 		bool is_roundtrip = false;
 	};
+
 }//transport::catalogue::domain

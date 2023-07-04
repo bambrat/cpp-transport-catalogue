@@ -1,32 +1,25 @@
-#include "transport_catalogue.h"
 #include "request_handler.h"
 #include "json_reader.h"
+#include <cassert>
 
-using namespace json::reader;
-using namespace transport::catalogue;
-using namespace transport::domain;
-using namespace json;
- 
+using namespace transport;
+
 int main() {
-	TransportCatalogue catalogue;
+	json::Document input_data = json::load(std::cin);
 
-	auto inputJson = load(std::cin);
+	auto& base_requests = input_data.getRoot().asDict().at("base_requests").asArray();
+	auto& stat_requests = input_data.getRoot().asDict().at("stat_requests").asArray();
+	auto routing_settings = json::reader::setRouterSetting(input_data.getRoot().asDict().at("routing_settings").asDict());
+	auto render_settings = json::reader::setRenderSetting(input_data.getRoot().asDict().at("render_settings").asDict());
 
-	Array base_requests = inputJson.getRoot().asDict().at("base_requests").asArray();
+	map_renderer::MapRenderer map_render(render_settings);
+	catalogue::TransportCatalogue catalogue;
+	router::RouterByGraph router_by_graph(routing_settings);
 
-	setTransportCatalogueData(catalogue, base_requests);
+	json::reader::setTransportData(catalogue, router_by_graph, base_requests);
+	request_handler::RequestHandler request_handler(catalogue, map_render, router_by_graph);
 
-	Array stat_requests = inputJson.getRoot().asDict().at("stat_requests").asArray();
-
-	auto& render_settings = inputJson.getRoot().asDict().at("render_settings").asDict();
-
-	auto render_dict = setRenderSetting(render_settings);
-
-	map_renderer::MapRenderer map_render(render_dict);
-
-	request_handler::RequestHandler request_handler(catalogue, map_render);
-
-	request_handler.printResponseData(stat_requests);
-
+	request_handler.printResponse(stat_requests);
+	
 	return 0;
 }

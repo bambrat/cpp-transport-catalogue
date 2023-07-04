@@ -11,7 +11,7 @@
 #include <cmath>
 #include <optional>
 #include <variant>
-//#include <math.h>
+
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846
@@ -251,4 +251,4 @@ namespace svg {
 	private:
 		std::vector<std::unique_ptr<Object>> objects_;
 	};
-}  // namespace svg
+}  // end namespace svg

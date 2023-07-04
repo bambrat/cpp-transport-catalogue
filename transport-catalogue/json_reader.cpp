@@ -8,16 +8,23 @@
 #include <string>
 
 namespace json::reader {
+	using namespace transport::domain;
+	using namespace transport::catalogue;
+	using namespace transport::router;
+	using namespace map_renderer;
+	using namespace std::literals;
+	using namespace json;
+	using namespace svg;
 
-	svg::Color setColor(const Node& node) {
+	Color setColor(const Node& node) {
 		if (node.isString()) {
-			return svg::Color{ node.asString() };
+			return Color{ node.asString() };
 		}
 		if (node.isArray()) {
 			const auto& node_array = node.asArray();
 			size_t size = node_array.size();
 			if (size == 4) {
-				return svg::Rgba{
+				return Rgba{
 					static_cast<uint8_t>(node_array[0].asInt()),
 						static_cast<uint8_t>(node_array[1].asInt()),
 						static_cast<uint8_t>(node_array[2].asInt()),
@@ -26,7 +33,7 @@ namespace json::reader {
 
 			}
 			if (size == 3) {
-				return svg::Rgb{
+				return Rgb{
 					static_cast<uint8_t>(node_array[0].asInt()),
 						static_cast<uint8_t>(node_array[1].asInt()),
 						static_cast<uint8_t>(node_array[2].asInt())
@@ -34,14 +41,12 @@ namespace json::reader {
 			}
 		}
 		else {
-			throw  std::logic_error("unknown node");
+			throw  std::logic_error("unknown node"s);
 		}
-		return svg::Color{};
+		return Color{};
 	}
 
-	map_renderer::RenderSettings setRenderSetting(const Dict& render_settings) {
-		using namespace map_renderer;
-		using namespace std::literals;
+	RenderSettings setRenderSetting(const Dict& render_settings) {
 		RenderSettings result;
 
 		result.width_ = render_settings.at("width"s).asDouble();
@@ -53,11 +58,11 @@ namespace json::reader {
 		result.underlayer_width_ = render_settings.at("underlayer_width"s).asDouble();
 		result.stop_label_font_size_ = render_settings.at("stop_label_font_size"s).asInt();
 
-		const json::Array& tmp_bus_label_offset = render_settings.at("bus_label_offset"s).asArray();
+		const Array& tmp_bus_label_offset = render_settings.at("bus_label_offset"s).asArray();
 		result.bus_label_offset_.first = tmp_bus_label_offset[0].asDouble();
 		result.bus_label_offset_.second = tmp_bus_label_offset[1].asDouble();
 
-		const json::Array& tmp_stop_label_offset = render_settings.at("stop_label_offset"s).asArray();
+		const Array& tmp_stop_label_offset = render_settings.at("stop_label_offset"s).asArray();
 		result.stop_label_offset_.first = tmp_stop_label_offset[0].asDouble();
 		result.stop_label_offset_.second = tmp_stop_label_offset[1].asDouble();
 
@@ -69,21 +74,26 @@ namespace json::reader {
 		return result;
 	}
 
-	void setTransportCatalogueData(transport::catalogue::TransportCatalogue& catalogue, const json::Array& catalogue_data)
+	RouterSettings setRouterSetting(const Dict& routing_settings) {
+		RouterSettings res{};
+		res.velocity = routing_settings.at("bus_velocity").asDouble();
+		res.wait_time = routing_settings.at("bus_wait_time").asDouble();
+		return res;
+	}
+
+	void setTransportData(TransportCatalogue& catalogue, RouterByGraph& router_by_graph , const Array& base_requests)
 	{
 		using namespace std::literals;
-		using namespace transport::domain;
-
 		std::vector<Node> stop_req;
 		std::vector<Node> bus_req;
 
-		for (const auto& request : catalogue_data) {
+		for (const auto& request : base_requests) {
 			auto& type = request.asDict().at("type"s).asString();
 			if (type == "Stop"s) {
-				stop_req.push_back(std::move(request));
+				stop_req.emplace_back(request);
 			}
 			if (type == "Bus"s) {
-				bus_req.push_back(std::move(request));
+				bus_req.emplace_back(request);
 			}
 		}
 
@@ -128,5 +138,8 @@ namespace json::reader {
 			}
 			catalogue.addBus(std::move(bus));
 		}
+
+		router_by_graph.setRouter(catalogue.getAllStops(), catalogue.getAllBuses());
+
 	}
-}//json::reader
+}//end namespace json::reader

@@ -87,4 +87,4 @@ namespace transport::catalogue {
 	const StopMap& TransportCatalogue::getAllStops() const {
 		return stopname_to_stop;
 	}
-}
+}// end namespace transport::catalogue
