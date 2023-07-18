@@ -1,25 +1,42 @@
 #include "request_handler.h"
-#include "json_reader.h"
-#include <cassert>
+#include "serialization.h"
 
-using namespace transport;
+#include <fstream>
+#include <iostream>
+#include <string_view>
 
-int main() {
+using namespace std::literals;
+
+void PrintUsage(std::ostream& stream = std::cerr) {
+	stream << "Usage: transport_catalogue [make_base|process_requests]\n"sv;
+}
+
+int main(int argc, char* argv[]) {
+	if (argc != 2) {
+		PrintUsage();
+		return 1;
+	}
+	const std::string_view mode(argv[1]);
+
 	json::Document input_data = json::load(std::cin);
+	if (mode == "make_base"sv) {
+		tc_protobuf::Serialization serialization(input_data, mode);
 
-	auto& base_requests = input_data.getRoot().asDict().at("base_requests").asArray();
-	auto& stat_requests = input_data.getRoot().asDict().at("stat_requests").asArray();
-	auto routing_settings = json::reader::setRouterSetting(input_data.getRoot().asDict().at("routing_settings").asDict());
-	auto render_settings = json::reader::setRenderSetting(input_data.getRoot().asDict().at("render_settings").asDict());
+	}
+	else if (mode == "process_requests"sv) {
+		tc_protobuf::Serialization serialization(input_data, mode);
+		transport::catalogue::TransportCatalogue catalogue = serialization.composeTransportCatalogue();
 
-	map_renderer::MapRenderer map_render(render_settings);
-	catalogue::TransportCatalogue catalogue;
-	router::RouterByGraph router_by_graph(routing_settings);
+		auto render_settings = serialization.getRenderSettings();
+		auto routing_settings = serialization.getRouterSettings();
+		request_handler::RequestHandler handler(catalogue, render_settings, routing_settings);
 
-	json::reader::setTransportData(catalogue, router_by_graph, base_requests);
-	request_handler::RequestHandler request_handler(catalogue, map_render, router_by_graph);
+		auto stat_requests = serialization.getStatRequests();
+		handler.printResponse(stat_requests);
 
-	request_handler.printResponse(stat_requests);
-	
-	return 0;
+	}
+	else {
+		PrintUsage();
+		return 1;
+	}
 }

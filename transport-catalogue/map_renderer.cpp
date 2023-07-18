@@ -1,5 +1,6 @@
 #include "map_renderer.h"
 
+
 namespace map_renderer {
     using namespace std::literals;
     using namespace transport::domain;

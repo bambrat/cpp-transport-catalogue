@@ -1,0 +1,32 @@
+syntax = "proto3";
+
+import "map_renderer.proto";
+import "transport_router.proto";
+
+package tc_protobuf;
+
+message StopProto {
+		string name = 1;
+		double latitude = 2;
+		double longitude = 3;
+        repeated DistanceProto distance = 4;
+};
+
+message BusProto {
+		string name = 1;
+		repeated uint32 stops = 2;
+		bool is_roundtrip = 3;
+};
+
+message DistanceProto {
+    uint32 next_stop = 1;
+    uint32 distance = 2;
+}
+
+message DataToSaveProto {
+    repeated StopProto stops = 1;
+    repeated BusProto buses = 2;
+    repeated DistanceProto distances = 3;
+    RenderSettingsProto render_settings = 4;
+	RoutingSettingsProto routing_settings = 5;
+}

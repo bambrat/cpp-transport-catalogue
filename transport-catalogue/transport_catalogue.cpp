@@ -1,4 +1,5 @@
 #include "transport_catalogue.h"
+#include <numeric>
 
 namespace transport::catalogue {
 	using namespace transport::domain;

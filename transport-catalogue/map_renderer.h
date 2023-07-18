@@ -3,6 +3,7 @@
 #include "geo.h"
 #include "svg.h"
 
+#include <algorithm>
 #include <sstream>
 
 namespace map_renderer {

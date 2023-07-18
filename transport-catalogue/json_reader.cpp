@@ -81,7 +81,8 @@ namespace json::reader {
 		return res;
 	}
 
-	void setTransportData(TransportCatalogue& catalogue, RouterByGraph& router_by_graph , const Array& base_requests)
+	void setTransportData(TransportCatalogue& catalogue, const Array& base_requests)
+	
 	{
 		using namespace std::literals;
 		std::vector<Node> stop_req;
@@ -139,7 +140,7 @@ namespace json::reader {
 			catalogue.addBus(std::move(bus));
 		}
 
-		router_by_graph.setRouter(catalogue.getAllStops(), catalogue.getAllBuses());
+		//router_by_graph.setRouter(catalogue.getAllStops(), catalogue.getAllBuses());
 
 	}
 }//end namespace json::reader

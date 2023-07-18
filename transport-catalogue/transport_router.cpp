@@ -16,11 +16,9 @@ namespace transport::router {
 			VertexId bus_wait_end = i++;
 
 			stop_router_map_[stop] = RouterByStop{ bus_wait_start, bus_wait_end };
-
 			auto id = graph_->addEdge(Edge<double>{bus_wait_start, bus_wait_end, settings_.wait_time});
 			edge_id_map_[id] = EdgeByStop{ name_stop, settings_.wait_time };
 		}
-
 		for (auto& [name_bus, bus] : allbuses) {
 			addEdgesByBus(bus->stops.begin(), bus->stops.end(), name_bus);
 
@@ -63,7 +61,7 @@ namespace transport::router {
 		}
 	}
 
-	const std::optional<RouterByStop> RouterByGraph::getRouterByStop(const Stop* stop) const {
+	std::optional<RouterByStop> RouterByGraph::getRouterByStop(const Stop* stop) const {
 		if (stop_router_map_.count(stop)) { return stop_router_map_.at(stop); }
 		return std::nullopt;
 	}
@@ -71,7 +69,7 @@ namespace transport::router {
 	std::optional<RouteInfomation> RouterByGraph::getRouteInfomation(const Stop* from, const Stop* to) const {
 		auto start = getRouterByStop(from)->bus_wait_start;
 		auto end = getRouterByStop(to)->bus_wait_start;
-		
+
 		const auto& route_info = router_->buildRoute(start, end);
 		if (route_info) {
 			RouteInfomation result;

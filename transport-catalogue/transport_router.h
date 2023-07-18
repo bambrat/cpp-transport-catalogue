@@ -69,11 +69,10 @@ namespace transport::router {
 	public:
 		RouterByGraph(const RouterSettings& settings);
 		void setRouter(const transport::domain::StopMap& allstops, const transport::domain::BusMap& allbuses);
-		
-		const std::optional<RouterByStop> getRouterByStop(const transport::domain::Stop* stop) const;
 		std::optional<RouteInfomation> getRouteInfomation(const transport::domain::Stop* from, const transport::domain::Stop* to) const;
 
 	private:
+		std::optional<RouterByStop> getRouterByStop(const transport::domain::Stop* stop) const;
 		void addEdgesByBus(const std::vector<transport::domain::Stop*>::iterator& first, const std::vector<transport::domain::Stop*>::iterator& last, const std::string_view& name);
 
 		const RouterSettings& settings_;

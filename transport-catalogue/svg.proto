@@ -1,0 +1,25 @@
+syntax = "proto3";
+
+package tc_protobuf;
+
+message RgbProto {
+    uint32 red_ = 1;
+    uint32 green_ = 2;
+    uint32 blue_ = 3;
+}
+
+message RgbaProto {
+    uint32 red_ = 1;
+    uint32 green_ = 2;
+    uint32 blue_ = 3;
+    double opacity_ = 4;
+}
+
+message ColorProto {
+    oneof colors {
+        RgbProto rgb = 1;
+        RgbaProto rgba = 2;
+        string string_color = 3;
+        bool none = 4;
+    }
+}
