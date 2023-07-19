@@ -437,5 +437,4 @@ namespace json {
     void print(const Document& document, std::ostream& output) {
         printNode(document.getRoot(), PrintContext{ output });
     }
-
 }//end namespace json

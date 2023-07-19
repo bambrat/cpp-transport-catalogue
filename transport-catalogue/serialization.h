@@ -19,4 +19,3 @@ namespace tc_protobuf {
 	map_renderer::RenderSettings loadRenderSettings(tc_protobuf::DataToSaveProto proto);
 	transport::router::RouterSettings loadRouterSettings(tc_protobuf::DataToSaveProto proto);
 }//end namespace tc_protobuf
-

@@ -139,8 +139,5 @@ namespace json::reader {
 			}
 			catalogue.addBus(std::move(bus));
 		}
-
-		//router_by_graph.setRouter(catalogue.getAllStops(), catalogue.getAllBuses());
-
 	}
 }//end namespace json::reader

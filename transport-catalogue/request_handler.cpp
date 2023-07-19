@@ -65,8 +65,6 @@ namespace request_handler {
 			}
 
 			else if (type == "Route") {
-
-
 				auto from = db_.getStop(request.asDict().at("from").asString());
 				auto to = db_.getStop(request.asDict().at("to").asString());
 

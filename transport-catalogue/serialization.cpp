@@ -5,7 +5,6 @@ namespace tc_protobuf {
 	using namespace transport::domain;
 	using namespace transport::router;
 	using namespace map_renderer;
-	using namespace json;
 	using namespace std::literals;
 
 	ColorProto convertColorToColorProto(const svg::Color& tc_color) {
@@ -43,7 +42,6 @@ namespace tc_protobuf {
 		return std::distance(cache.cbegin(), stop_it);
 	}
 
-	
 	void saveData(transport::catalogue::TransportCatalogue& db, map_renderer::RenderSettings& rs, transport::router::RouterSettings& routs, const std::string& file)
 	{
 		DataToSaveProto serialize_transport_catalogue;
