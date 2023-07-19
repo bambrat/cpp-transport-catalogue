@@ -8,25 +8,44 @@ namespace tc_protobuf {
 	using namespace json;
 	using namespace std::literals;
 
-	Serialization::Serialization(const Document& input_data, const std::string_view& mode) : input_data_(input_data)
-	{
-		if (mode == "make_base"sv) {
-			saveData();
+	ColorProto convertColorToColorProto(const svg::Color& tc_color) {
+		ColorProto color_proto;
+
+		if (std::holds_alternative<std::monostate>(tc_color)) {
+			color_proto.set_none(true);
 		}
-		else if (mode == "process_requests"sv) {
-			proto_data_ = std::move(protoParseFromIstream());
+		else if (std::holds_alternative<svg::Rgb>(tc_color)) {
+			svg::Rgb rgb = std::get<svg::Rgb>(tc_color);
+
+			color_proto.mutable_rgb()->set_red_(rgb.red);
+			color_proto.mutable_rgb()->set_green_(rgb.green);
+			color_proto.mutable_rgb()->set_blue_(rgb.blue);
 		}
+		else if (std::holds_alternative<svg::Rgba>(tc_color)) {
+			svg::Rgba rgba = std::get<svg::Rgba>(tc_color);
+
+			color_proto.mutable_rgba()->set_red_(rgba.red);
+			color_proto.mutable_rgba()->set_green_(rgba.green);
+			color_proto.mutable_rgba()->set_blue_(rgba.blue);
+			color_proto.mutable_rgba()->set_opacity_(rgba.opacity);
+		}
+		else if (std::holds_alternative<std::string>(tc_color)) {
+			color_proto.set_string_color(std::get<std::string>(tc_color));
+		}
+		return color_proto;
 	}
 
-	void Serialization::saveData()
+	int getСachePointer(const std::deque<std::string_view>& cache, const std::string_view& find_name)
 	{
-		auto rs = json::reader::setRenderSetting(input_data_.getRoot().asDict().at("render_settings").asDict());
-		auto routs = json::reader::setRouterSetting(input_data_.getRoot().asDict().at("routing_settings").asDict());
+		auto stop_it = std::find_if(cache.cbegin(), cache.cend(), [&](auto& f_name) {
+			return find_name == f_name;
+			});
+		return std::distance(cache.cbegin(), stop_it);
+	}
 
-		TransportCatalogue db;
-		auto& base_requests = input_data_.getRoot().asDict().at("base_requests").asArray();
-		json::reader::setTransportData(db, base_requests);
-
+	
+	void saveData(transport::catalogue::TransportCatalogue& db, map_renderer::RenderSettings& rs, transport::router::RouterSettings& routs, const std::string& file)
+	{
 		DataToSaveProto serialize_transport_catalogue;
 
 		auto& stops = db.getAllStops();
@@ -95,79 +114,27 @@ namespace tc_protobuf {
 
 		*serialize_transport_catalogue.mutable_routing_settings() = std::move(rout_settings_proto);
 
-		std::ofstream out_file(getFileName(), std::ios::binary);
+		std::ofstream out_file(file, std::ios::binary);
 		serialize_transport_catalogue.SerializePartialToOstream(&out_file);
 	}
 
-	int Serialization::getСachePointer(const std::deque<std::string_view>& cache, const std::string_view& find_name)
-	{
-		auto stop_it = std::find_if(cache.cbegin(), cache.cend(), [&](auto& f_name) {
-			return find_name == f_name;
-			});
-		return std::distance(cache.cbegin(), stop_it);
+	tc_protobuf::DataToSaveProto protoParseFromIstream(std::string file) {
+		std::ifstream in_file(file, std::ios::binary);
+
+		DataToSaveProto proto;
+		bool done = proto.ParseFromIstream(&in_file);
+
+		if (!done) {
+			throw std::runtime_error("cannot parse serialized file from istream");
+		}
+		return proto;
 	}
 
-	svg::Color Serialization::convertColorProtoToColor(const ColorProto& cp) 
-	{
-		svg::Color color;
-
-		if (cp.has_rgb()) {
-			svg::Rgb rgb;
-			rgb.red = cp.rgb().red_();
-			rgb.green = cp.rgb().green_();
-			rgb.blue = cp.rgb().blue_();
-
-			color = rgb;
-		}
-		else if (cp.has_rgba()) {
-			svg::Rgba rgba;
-
-			rgba.red = cp.rgba().red_();
-			rgba.green = cp.rgba().green_();
-			rgba.blue = cp.rgba().blue_();
-			rgba.opacity = cp.rgba().opacity_();
-
-			color = rgba;
-		}
-		else {
-			color = cp.string_color();
-		}
-
-		return color;
-	}
-
-	ColorProto Serialization::convertColorToColorProto(const svg::Color& tc_color) {
-		ColorProto color_proto;
-
-		if (std::holds_alternative<std::monostate>(tc_color)) {
-			color_proto.set_none(true);
-		}
-		else if (std::holds_alternative<svg::Rgb>(tc_color)) {
-			svg::Rgb rgb = std::get<svg::Rgb>(tc_color);
-
-			color_proto.mutable_rgb()->set_red_(rgb.red);
-			color_proto.mutable_rgb()->set_green_(rgb.green);
-			color_proto.mutable_rgb()->set_blue_(rgb.blue);
-		}
-		else if (std::holds_alternative<svg::Rgba>(tc_color)) {
-			svg::Rgba rgba = std::get<svg::Rgba>(tc_color);
-
-			color_proto.mutable_rgba()->set_red_(rgba.red);
-			color_proto.mutable_rgba()->set_green_(rgba.green);
-			color_proto.mutable_rgba()->set_blue_(rgba.blue);
-			color_proto.mutable_rgba()->set_opacity_(rgba.opacity);
-		}
-		else if (std::holds_alternative<std::string>(tc_color)) {
-			color_proto.set_string_color(std::get<std::string>(tc_color));
-		}
-		return color_proto;
-	}
-
-	transport::catalogue::TransportCatalogue Serialization::composeTransportCatalogue()
+	transport::catalogue::TransportCatalogue loadCatalogueData(tc_protobuf::DataToSaveProto proto)
 	{
 		transport::catalogue::TransportCatalogue db;
-		auto& stops_p = proto_data_.stops();
-		auto& buses_p = proto_data_.buses();
+		auto& stops_p = proto.stops();
+		auto& buses_p = proto.buses();
 
 		std::deque<std::string> cache_stops;
 		for (auto& stop_p : stops_p) {
@@ -206,11 +173,40 @@ namespace tc_protobuf {
 		return db;
 	}
 
-	RenderSettings Serialization::getRenderSettings()
+	svg::Color convertColorProtoToColor(const ColorProto& cp)
+	{
+		svg::Color color;
+
+		if (cp.has_rgb()) {
+			svg::Rgb rgb;
+			rgb.red = cp.rgb().red_();
+			rgb.green = cp.rgb().green_();
+			rgb.blue = cp.rgb().blue_();
+
+			color = rgb;
+		}
+		else if (cp.has_rgba()) {
+			svg::Rgba rgba;
+
+			rgba.red = cp.rgba().red_();
+			rgba.green = cp.rgba().green_();
+			rgba.blue = cp.rgba().blue_();
+			rgba.opacity = cp.rgba().opacity_();
+
+			color = rgba;
+		}
+		else {
+			color = cp.string_color();
+		}
+
+		return color;
+	}
+
+	RenderSettings loadRenderSettings(tc_protobuf::DataToSaveProto proto)
 	{
 		RenderSettings rs;
 
-		auto& rsp = proto_data_.render_settings();
+		auto& rsp = proto.render_settings();
 		rs.width_ = rsp.width();
 		rs.height_ = rsp.height();
 		rs.padding_ = rsp.padding();
@@ -232,33 +228,12 @@ namespace tc_protobuf {
 		return rs;
 	}
 
-	RouterSettings Serialization::getRouterSettings()
+	RouterSettings loadRouterSettings(tc_protobuf::DataToSaveProto proto)
 	{
 		RouterSettings rs;
-		rs.velocity = proto_data_.routing_settings().bus_velocity();
-		rs.wait_time = proto_data_.routing_settings().bus_wait_time();
+		rs.velocity = proto.routing_settings().bus_velocity();
+		rs.wait_time = proto.routing_settings().bus_wait_time();
 		return rs;
 	}
 
-	tc_protobuf::DataToSaveProto Serialization::protoParseFromIstream()
-	{
-		std::ifstream in_file(getFileName(), std::ios::binary);
-
-		DataToSaveProto proto;
-		bool done = proto.ParseFromIstream(&in_file);
-
-		if (!done) {
-			throw std::runtime_error("cannot parse serialized file from istream");
-		}
-		return proto;
-	}
-
-	const std::string& Serialization::getFileName()
-	{
-		return input_data_.getRoot().asDict().at("serialization_settings").asDict().at("file"s).asString();
-	}
-
-	json::Array Serialization::getStatRequests() {
-		return input_data_.getRoot().asDict().at("stat_requests").asArray();
-	}
 } // end namespace tc_protobuf

@@ -8,16 +8,13 @@ namespace request_handler {
 	using namespace std::string_literals;
 	using namespace json;
 
-	RequestHandler::RequestHandler(TransportCatalogue& db, const RenderSettings& render_settings, RouterSettings& rs)
-		: db_(db), render_settings_(render_settings), route_settings_(rs) {}
+	RequestHandler::RequestHandler(TransportCatalogue& db, const MapRenderer& map_renderer, RouterByGraph& router_by_graph)
+		: db_(db), map_renderer_(map_renderer), router_by_graph_(router_by_graph) {}
 
 	const Document RequestHandler::responseData(const Array& stat_requests)
 	{
 		std::vector<Node> result_request;
-		RouterByGraph router_by_graph(route_settings_);
-		router_by_graph.setRouter(db_.getAllStops(), db_.getAllBuses());
-
-		MapRenderer map_render(render_settings_);
+		router_by_graph_.setRouter(db_.getAllStops(), db_.getAllBuses());
 
 		for (auto& request : stat_requests) {
 			auto& rasd = request.asDict();
@@ -63,7 +60,7 @@ namespace request_handler {
 
 			else if (type == "Map") {
 				result.key("request_id").value(id);
-				auto mp = map_render.getMapJson(db_.getAllBuses(), db_.getAllStops());
+				auto mp = map_renderer_.getMapJson(db_.getAllBuses(), db_.getAllStops());
 				result.key("map").value(mp);
 			}
 
@@ -73,7 +70,7 @@ namespace request_handler {
 				auto from = db_.getStop(request.asDict().at("from").asString());
 				auto to = db_.getStop(request.asDict().at("to").asString());
 
-				const auto& route_info = router_by_graph.getRouteInfomation(from, to);
+				const auto& route_info = router_by_graph_.getRouteInfomation(from, to);
 
 				result.key("request_id").value(id);
 
