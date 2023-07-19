@@ -4,7 +4,6 @@ project(transport_catalogue)
 set(CMAKE_CXX_STANDARD 17)
 
 find_package(Protobuf REQUIRED)
-#find_package(Threads REQUIRED)
 
 protobuf_generate_cpp(PROTO_SRCS PROTO_HDRS transport_catalogue.proto 
                                             svg.proto 
@@ -64,5 +63,4 @@ add_executable(transport_catalogue main.cpp
 
 target_include_directories(transport_catalogue PUBLIC ${Protobuf_INCLUDE_DIRS})
 target_include_directories(transport_catalogue PUBLIC ${CMAKE_CURRENT_BINARY_DIR})
-#target_link_libraries(transport_catalogue "$<IF:$<CONFIG:Debug>,${Protobuf_LIBRARY_DEBUG},${Protobuf_LIBRARY}>" Threads::Threads)
 target_link_libraries(transport_catalogue "$<IF:$<CONFIG:Debug>,${Protobuf_LIBRARY_DEBUG},${Protobuf_LIBRARY}>")
